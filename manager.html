@@ -100,7 +100,7 @@
             }
 
         function server2Set(raceKey, vid) {
-          toggle = flase;   
+          toggle = false;   
           console.log("서버2 레이스 키:", raceKey); //(서울) 2023.08.13 1경주
           console.log("서버2 비디오id:", vid);
           fetch(`https://app-kraserver.pythonanywhere.com/set-data-all?key=${raceKey}&vid=${vid}`, {
@@ -111,7 +111,7 @@
                   console.log("서버2 데이터 : ", data);
                   restartServer2();
                 });
-          toggle = false;                      
+          toggle = true;                      
         }
 
         function restartServer1() {
