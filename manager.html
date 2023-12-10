@@ -29,11 +29,11 @@
     <div class="container">
         <div style="margin-bottom: 40px;"><p>YouTube 비디오 등록</p></div>
         <div>
-            <div style="white-space: nowrap; margin-bottom: 10px; white-space: pre">YouTube 비디오 제목  :     <input type="text" id="title" style="width: 250px" placeholder="예 : (서울) 2023.08.13 9경주"> </div>
+            <div style="white-space: nowrap; margin-bottom: 10px; white-space: pre">YouTube 비디오 제목  :     <input type="text" id="title" style="width: 250px" placeholder="예 : (서울) 2023.08.13 9경주"><span>  (꼭 형식에 맞게 입력하세요.)</span></div>
             <div style="white-space: nowrap; margin-bottom: 40px; white-space: pre">YouTube 비디오 ID      :     <input type="text" id="video-id" placeholder="예 : PFd0XxQaTXg"></div>
                 
             <div>
-                <button class="resister-btn" onclick="server1Set()">등록</button><button id="restart-btn" style="display: none; margin-left: 10px;">서버 Reload</button><span id="check" style="display: none">✔</span>
+                <button class="resister-btn" onclick="server1Set()">등록</button><span id="count-message" style="display: none; margin-left: 10px;">서버 Reload</button>
             </div>
 
 
@@ -45,30 +45,26 @@
     
     <script>
         const response_data = document.querySelector(".response-data");
-        const server_check = document.querySelector("#check");
-        const restart_btn = document.getElementById("restart-btn");
+        const count_message = document.getElementById("count-message");
         const resister_btn = document.querySelector(".resister-btn")
 
         let toggle = true;
 
         
         function server1Set() {
-            
             var temp_key = document.querySelector("#title");
             var video_id = document.querySelector("#video-id");
-            if(temp_key.value === '' || video_id.value === '') {
-               alert("내용을 모두 입력하세요.");
+            if (temp_key.value === '' || video_id.value === '') {
+                alert("내용을 모두 입력하세요.");
             }
             else {
                 resister_btn.disabled = true;
-                server_check.style.display = 'none';
-                restart_btn.style.display = 'none';
-                
+                count_message.style.display = 'none';
                 console.log(temp_key.value);
                 var key = temp_key.value.replace("경주", "");
                 console.log(key); //(서울) 2023.08.13 1경주
                 console.log(video_id.value);
-                
+
                 response_data.innerHTML = `<div class="text-center">
                   <div class="spinner-border" role="status">
                     <span class="visually-hidden">Loading...</span>
@@ -83,21 +79,31 @@
                       response_data.innerHTML =
                       `<h3>등록 완료</h3>
 
-                       <span><p style="color : black;">${key}경주</p>
-                       <p style="color : black;">YouTube : ${data["youtube"]}</p>
-                       <p style="color : black;">경주명 : ${data[key][0]["race_name"]} / 거리 : ${data[key][0]["race_distance"]}m / 등급 : ${data[key][0]["grade"]} / 연령 : ${data[key][0]["age_condition"]} / 중량 : ${data[key][0]["budam_condition"]} / 주로 : ${data[key][0]["track_condition"]} / 날씨 : ${data[key][0]["weather"]}</p></span>`
-                       restart_btn.style.display = ''
-                       restartServer1();
-                       resister_btn.disabled = false;
-                       
-                       
-                     });
-                if(toggle = true){
-                  server2Set(key, video_id.value);
+                      <span><p style="color : black;">${key}경주</p>
+                      <p style="color : black;">YouTube : ${data["youtube"]}</p>
+                      <p style="color : black;">경주명 : ${data[key][0]["race_name"]} / 거리 : ${data[key][0]["race_distance"]}m / 등급 : ${data[key][0]["grade"]} / 연령 : ${data[key][0]["age_condition"]} / 중량 : ${data[key][0]["budam_condition"]} / 주로 : ${data[key][0]["track_condition"]} / 날씨 : ${data[key][0]["weather"]}</p></span>`
+                      count_message.style.display = ''
+                      restartServer1();
+                      
+                      // 카운트다운 시작
+                      let countdown = 60;
+                      count_message.textContent = `${countdown}초 후 버튼 활성화 (서버 리로드 중.. 새로고침(F5) 절대금지)`;
+                      const timer = setInterval(() => {
+                          countdown -= 1;
+                          count_message.textContent = `${countdown}초 후 버튼 활성화 (서버 리로드 중.. 새로고침(F5) 절대금지)`;
+                          
+                          if (countdown <= 0) {
+                              clearInterval(timer);
+                              resister_btn.disabled = false;
+                              count_message.style.display = 'none'
+                          }
+                      }, 1000);
+                    });
+                if (toggle = true) {
+                    server2Set(key, video_id.value);
                 }
-                
-              }         
             }
+        }
 
         function server2Set(raceKey, vid) {
           toggle = false;   
@@ -115,8 +121,7 @@
         }
 
         function restartServer1() {
-            restart_btn.disabled = true;
-            server_check.style.display = '';
+            count_message.disabled = true;
             const token = "1bf24b3d4fa519c64527cd3da1005fd0e44505cc";
             console.log("토큰 전송");
             fetch(`https://kraserver.pythonanywhere.com/restart?token=${token}`, {
