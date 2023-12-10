@@ -33,7 +33,7 @@
             <div style="white-space: nowrap; margin-bottom: 40px; white-space: pre">YouTube 비디오 ID      :     <input type="text" id="video-id" placeholder="예 : PFd0XxQaTXg"></div>
                 
             <div>
-                <button class="resister-btn" onclick="printToConsole()">등록</button><button id="restart-btn" style="display: none; margin-left: 10px;">서버 Reload</button><span id="check" style="display: none">✔</span>
+                <button class="resister-btn" onclick="server1Set()">등록</button><button id="restart-btn" style="display: none; margin-left: 10px;">서버 Reload</button><span id="check" style="display: none">✔</span>
             </div>
 
 
@@ -49,8 +49,10 @@
         const restart_btn = document.getElementById("restart-btn");
         const resister_btn = document.querySelector(".resister-btn")
 
+        let toggle = false;
+
         
-        function printToConsole() {
+        function server1Set() {
             
             var temp_key = document.querySelector("#title");
             var video_id = document.querySelector("#video-id");
@@ -66,6 +68,7 @@
                 var key = temp_key.value.replace("경주", "");
                 console.log(key); //(서울) 2023.08.13 1경주
                 console.log(video_id.value);
+                
                 response_data.innerHTML = `<div class="text-center">
                   <div class="spinner-border" role="status">
                     <span class="visually-hidden">Loading...</span>
@@ -84,15 +87,32 @@
                        <p style="color : black;">YouTube : ${data["youtube"]}</p>
                        <p style="color : black;">경주명 : ${data[key][0]["race_name"]} / 거리 : ${data[key][0]["race_distance"]}m / 등급 : ${data[key][0]["grade"]} / 연령 : ${data[key][0]["age_condition"]} / 중량 : ${data[key][0]["budam_condition"]} / 주로 : ${data[key][0]["track_condition"]} / 날씨 : ${data[key][0]["weather"]}</p></span>`
                        restart_btn.style.display = ''
-                       restartServer();
+                       restartServer1();
                        resister_btn.disabled = false;
+                       toggle = true;
+                       server2Set(key, video_id.value);
                      });
-                }         
+                
+              }         
             }
 
+        function server2Set(raceKey, vid) {
+          if (toggle == true){
+            console.log("서버2 레이스 키:", raceKey); //(서울) 2023.08.13 1경주
+            console.log("서버2 비디오id:", vid);
+            fetch(`https://app-kraserver.pythonanywhere.com/set-data-all?key=${raceKey}&vid=${vid}`, {
+                mode: 'cors'
+              })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("서버2 데이터 : ", data);
+                    restartServer2();
+                  });
+            toggle = false;
+          }                      
+        }
 
-
-        function restartServer() {
+        function restartServer1() {
             restart_btn.disabled = true;
             server_check.style.display = '';
             const token = "1bf24b3d4fa519c64527cd3da1005fd0e44505cc";
@@ -105,6 +125,23 @@
                   console.log(data);
                 });
           }
+        
+
+
+        function restartServer2() {
+            const token = "1bf24b3d4fa519c64527cd3da1005fd0e44505cc";
+            console.log("토큰 전송");
+            fetch(`https://app-kraserver.pythonanywhere.com/restart?token=${token}`, {
+                mode: 'cors'
+              })
+                .then(response => response.json())
+                .then(data => {
+                  console.log(data);
+                });
+          }
+        
+
+ 
         
     </script>
     <script src="js/jquery-3.3.1.min.js"></script>
