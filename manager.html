@@ -51,7 +51,7 @@
         let toggle = true;
         
         function validateTitleFormat(title) {
-            const regex = /^\((서울|부산|제주)\) \d{4}\.\d{2}\.\d{2} \d경주$/;
+            const regex = /^\((서울|부산|제주)\) \d{4}\.\d{2}\.\d{2} \d{1,2}경주$/;
             return regex.test(title);
         }
 
